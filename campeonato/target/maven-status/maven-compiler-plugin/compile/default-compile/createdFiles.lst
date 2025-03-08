@@ -1,0 +1,7 @@
+com/campeonato/campeonato/CampeonatoApplication.class
+com/campeonato/campeonato/model/Campeonato.class
+com/campeonato/campeonato/model/Classificacao.class
+com/campeonato/campeonato/controller/ClassificacaoController.class
+com/campeonato/campeonato/service/TimeService.class
+com/campeonato/campeonato/repository/TimeRepository.class
+com/campeonato/campeonato/model/Time.class
