@@ -5,23 +5,30 @@ import com.loja.loja.service.ProdutosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/produtos")
 public class ProdutosController {
+
     @Autowired
     private ProdutosService service;
 
     @PostMapping
-    public ResponseEntity<ProdutosModel> criarProduto(@RequestBody ProdutosModel produto) {
-        return service.criarProduto(produto);
+    public ResponseEntity<ProdutosModel> criarProduto(@RequestBody ProdutosModel produtosModel) {
+        ProdutosModel response = service.criarProduto(produtosModel);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(response.getId()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
     @GetMapping
     public ResponseEntity<List<ProdutosModel>> listarProdutos() {
-        return service.listarProdutos();
+        List<ProdutosModel> lista = service.findAll();
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
@@ -30,12 +37,12 @@ public class ProdutosController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutosModel> atualizarProduto(@PathVariable Long id, @RequestBody ProdutosModel produto) {
-        return service.atualizarProduto(id, produto);
+    public ResponseEntity<ProdutosModel> atualizarProduto(@PathVariable Long id, @RequestBody ProdutosModel produtosModel) {
+        return service.atualizarProduto(id, produtosModel);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removerProduto(@PathVariable Long id) {
-        return service.removerProduto(id);
+    public ResponseEntity<?> deletarProduto(@PathVariable Long id) {
+        return service.deletarProduto(id);
     }
 }

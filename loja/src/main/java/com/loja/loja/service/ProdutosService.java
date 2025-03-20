@@ -7,42 +7,48 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProdutosService {
+
     @Autowired
-    private ProdutosRepository repository;
+    private ProdutosRepository produtosRepository;
 
-    public ResponseEntity<ProdutosModel> criarProduto(ProdutosModel produto) {
-        return ResponseEntity.ok(repository.save(produto));
-    }
-
-    public ResponseEntity<List<ProdutosModel>> listarProdutos() {
-        return ResponseEntity.ok(repository.findAll());
+    public List<ProdutosModel> findAll() {
+        return produtosRepository.findAll();
     }
 
     public ResponseEntity<ProdutosModel> buscarPorId(Long id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<ProdutosModel> produto = produtosRepository.findById(id);
+        return produto.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    public ResponseEntity<ProdutosModel> atualizarProduto(Long id, ProdutosModel produto) {
-        return repository.findById(id).map(p -> {
-            p.setNome(produto.getNome());
-            p.setPreco(produto.getPreco());
-            p.setQuantidadeEmEstoque(produto.getQuantidadeEmEstoque());
-            return ResponseEntity.ok(repository.save(p));
-        }).orElse(ResponseEntity.notFound().build());
+    public ProdutosModel criarProduto(ProdutosModel produtosModel) {
+        return produtosRepository.save(produtosModel);
     }
 
-    public ResponseEntity<Void> removerProduto(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return ResponseEntity.noContent().build();
+    public ResponseEntity<ProdutosModel> atualizarProduto(Long id, ProdutosModel produtosModel) {
+        Optional<ProdutosModel> produtoExistente = produtosRepository.findById(id);
+        if (produtoExistente.isPresent()) {
+            ProdutosModel produtoAtualizado = produtoExistente.get();
+            produtoAtualizado.setNome(produtosModel.getNome());
+            produtoAtualizado.setPreco(produtosModel.getPreco());
+            produtoAtualizado.setQuantidadeEmEstoque(produtosModel.getQuantidadeEmEstoque());
+            produtosRepository.save(produtoAtualizado);
+            return ResponseEntity.ok(produtoAtualizado);
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+    }
+
+    public ResponseEntity<?> deletarProduto(Long id) {
+        Optional<ProdutosModel> produto = produtosRepository.findById(id);
+        if (produto.isPresent()) {
+            produtosRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
-
-
